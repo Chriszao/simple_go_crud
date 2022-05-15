@@ -18,7 +18,38 @@ This project uses lot of stuff as:
 
 ## Getting Started
 
-First, run the development server:
+To run this api, you may need to install [Docker desktop](https://www.docker.com/products/docker-desktop/)
+
+```bash
+# MySQL container
+docker run --name go-mysql -e MYSQL_ROOT_PASSWORD=root -p 3306:3306 -d mysql:latest
+
+# Enter MySQL container
+docker exec -it go-mysql bash
+
+# access mysql with root user 
+mysql -u root -p
+```
+
+```sql
+-- Create the api database
+CREATE DATABASE go_course;
+
+-- Create user table
+CREATE TABLE IF NOT EXISTS user (
+  id int auto_increment primary key,
+  name varchar(50) NOT NULL,
+  email varchar(50) NOT NULL
+);
+
+-- Create user to not access the database with root user
+CREATE USER 'golang'@'%' IDENTIFIED WITH authentication_plugin BY 'golang';
+
+-- Grant all privileges to created user
+GRANT ALL PRIVILEGES ON go_course.* TO 'golang'@'%';
+```
+
+And then run the development server:
 
 ```bash
 go run main.go
