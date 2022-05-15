@@ -21,6 +21,9 @@ func main() {
 	// ReadById
 	router.HandleFunc("/users/{id}", routes.GetUserById).Methods(http.MethodGet)
 
+	// Update
+	router.HandleFunc("/users/{id}", routes.UpdateUser).Methods(http.MethodPut)
+
 	fmt.Println("✨ Listening on http://localhost:5000")
 
 	log.Fatal(http.ListenAndServe(":5000", router))

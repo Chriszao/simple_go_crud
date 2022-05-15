@@ -153,3 +153,48 @@ func GetUserById(writer http.ResponseWriter, request *http.Request) {
 		return
 	}
 }
+
+func UpdateUser(writer http.ResponseWriter, request *http.Request) {
+	params := mux.Vars(request)
+
+	ID, err := strconv.ParseUint(params["id"], 10, 32)
+	if err != nil {
+		writer.Write([]byte("Error parsing id!"))
+		return
+	}
+
+	requestBody, err := ioutil.ReadAll(request.Body)
+
+	if err != nil {
+		writer.Write([]byte("Error reading 	request body!"))
+		return
+	}
+
+	var user user
+
+	if err = json.Unmarshal(requestBody, &user); err != nil {
+		writer.Write([]byte("Error parsing JSON to user struct!"))
+		return
+	}
+
+	db, err := database.Connect()
+	if err != nil {
+		writer.Write([]byte("Error connecting to database!"))
+		return
+	}
+	defer db.Close()
+
+	statement, err := db.Prepare("UPDATE user SET name = ?, email = ? WHERE id = ?")
+	if err != nil {
+		writer.Write([]byte("Error creating statement!"))
+		return
+	}
+	defer statement.Close()
+
+	if _, err := statement.Exec(user.Name, user.Email, ID); err != nil {
+		writer.Write([]byte("Error updating user!"))
+		return
+	}
+
+	writer.WriteHeader(http.StatusNoContent)
+}
