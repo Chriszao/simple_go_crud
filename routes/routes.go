@@ -198,3 +198,34 @@ func UpdateUser(writer http.ResponseWriter, request *http.Request) {
 
 	writer.WriteHeader(http.StatusNoContent)
 }
+
+func DeleteUser(writer http.ResponseWriter, request *http.Request) {
+	params := mux.Vars(request)
+
+	ID, err := strconv.ParseUint(params["id"], 10, 32)
+	if err != nil {
+		writer.Write([]byte("Error parsing id!"))
+		return
+	}
+
+	db, err := database.Connect()
+	if err != nil {
+		writer.Write([]byte("Error connecting to database!"))
+		return
+	}
+	defer db.Close()
+
+	statement, err := db.Prepare("DELETE FROM user WHERE id = ?")
+	if err != nil {
+		writer.Write([]byte("Error creating statement!"))
+		return
+	}
+
+	defer statement.Close()
+	if _, err := statement.Exec(ID); err != nil {
+		writer.Write([]byte("Error deleting user!"))
+		return
+	}
+
+	writer.WriteHeader(http.StatusNoContent)
+}
